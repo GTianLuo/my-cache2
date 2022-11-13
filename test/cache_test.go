@@ -32,7 +32,7 @@ func TestCache1(t *testing.T) {
 }
 
 // 测式定时随机剔除
-func Test(t *testing.T) {
+func TestCache2(t *testing.T) {
 	cache := evict.NewCache(20)
 	cache.DeleteExpired()
 	cache.Add("12", v{"ab"}, 2)

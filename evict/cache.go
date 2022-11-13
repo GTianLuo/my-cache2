@@ -36,13 +36,15 @@ func (c *Cache) RemoveOldest() {
 	back := c.ll.Back()
 	c.ll.Remove(back)
 	e := back.Value.(*entity)
-
 	delete(c.allDataMap, e.key)
 	delete(c.expireDataMap, e.key)
 	c.uBytes -= uint64(back.Value.(*entity).v.Len()) + uint64(len(e.key))
 }
 
 func (c *Cache) Add(key string, v Value, expire int64) error {
+	if c.allDataMap[key] != nil {
+		c.remove(key)
+	}
 	vBytes := uint64(v.Len()) + uint64(len([]byte(key)))
 	if vBytes > c.maxBytes-c.uBytes {
 		if vBytes > c.maxBytes {
@@ -65,7 +67,6 @@ func (c *Cache) Add(key string, v Value, expire int64) error {
 		c.expireDataMap[key] = e
 	}
 	return nil
-
 }
 
 func (c *Cache) remove(key string) {
@@ -74,18 +75,18 @@ func (c *Cache) remove(key string) {
 	c.RemoveOldest()
 }
 
-func (c *Cache) Get(key string) (Value, error) {
+func (c *Cache) Get(key string) (Value, bool) {
 	element := c.allDataMap[key]
 	if element == nil {
-		return nil, fmt.Errorf("%s is not find in cache", key)
+		return nil, false
 	}
 	entity := element.Value.(*entity)
-	if entity.ddl < time.Now().Unix() {
+	if entity.ddl > 0 && entity.ddl < time.Now().Unix() {
 		c.remove(key)
-		return nil, fmt.Errorf("%s is not find in cache", key)
+		return nil, false
 	}
 	c.ll.MoveToFront(element)
-	return entity.v, nil
+	return entity.v, true
 }
 
 func (c *Cache) DeleteExpired() {
