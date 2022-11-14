@@ -70,7 +70,7 @@ func (g *Group) Get(key string) (my_cache2.BytesValue, error) {
 func (g *Group) loadLocally(key string) (my_cache2.BytesValue, error) {
 	rntValue, err := g.getter.get(key)
 	if err != nil {
-		return my_cache2.BytesValue{}, nil
+		return my_cache2.BytesValue{}, err
 	}
 	log.Printf("[Slow DB] %s is searched in DB", key)
 	value := my_cache2.BytesValue{Bytes: rntValue.Bytes}

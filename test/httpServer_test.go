@@ -2,18 +2,14 @@ package test
 
 import (
 	"errors"
-	"fmt"
+	"log"
+	http2 "my-cache2/http"
 	"my-cache2/mycache"
+	"net/http"
 	"testing"
 )
 
-var db = map[string]string{
-	"jok": "545",
-	"klo": "323",
-	"los": "232",
-}
-
-func TestGroup(t *testing.T) {
+func TestHttpServer(t *testing.T) {
 	mycache.NewGroup("group1", 2<<10, mycache.GetterFunc(func(key string) (mycache.RntValue, error) {
 		s := db[key]
 		if s == "" {
@@ -24,10 +20,6 @@ func TestGroup(t *testing.T) {
 			Expire: 2,
 		}, nil
 	}))
-
-	group, _ := mycache.GetGroup("group1")
-	fmt.Println(group.Get("jok"))
-	fmt.Println(group.Get("klo"))
-	fmt.Println(group.Get("jok"))
-	fmt.Println(group.Get("klo"))
+	serverPool := http2.NewHttpServerPool("localhost:8081")
+	log.Fatal(http.ListenAndServe("localhost:8081", serverPool))
 }
