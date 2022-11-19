@@ -3,6 +3,7 @@ package mycache
 import (
 	"log"
 	my_cache2 "my-cache2"
+	"my-cache2/nodes"
 	"sync"
 )
 
@@ -22,9 +23,10 @@ type RntValue struct {
 }
 
 type Group struct {
-	name   string
-	cache  *mainCache
-	getter getter
+	name       string
+	cache      *mainCache
+	getter     getter
+	nodePicker nodes.NodePicker
 }
 
 var (
