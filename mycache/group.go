@@ -60,13 +60,39 @@ func GetGroup(name string) (*Group, bool) {
 	}
 }
 
+func (g *Group) Register(picker nodes.NodePicker) {
+	if g.nodePicker != nil {
+		panic("The number of registrations cannot exceed once")
+	}
+	g.nodePicker = picker
+}
+
 func (g *Group) Get(key string) (my_cache2.BytesValue, error) {
 	bytesValue, ok := g.cache.get(key)
 	if ok {
 		log.Printf("[MyCache] %s is hit in cache\n", key)
 		return bytesValue, nil
 	}
+	return g.Load(key)
+}
+
+func (g *Group) Load(key string) (value my_cache2.BytesValue, err error) {
+	if g.nodePicker != nil {
+		if node, ok := g.nodePicker.PickNode(key); ok {
+			if value, err = g.getFromPeer(node, key); err == nil {
+				return value, nil
+			}
+			log.Println("failed to load value form node ", err)
+		}
+	}
 	return g.loadLocally(key)
+}
+
+func (g *Group) getFromPeer(node nodes.NodeGetter, key string) (bytesValue my_cache2.BytesValue, err error) {
+	if bytes, err := node.Get(g.name, key); err != nil {
+		return my_cache2.BytesValue{Bytes: bytes}, nil
+	}
+	return bytesValue, nil
 }
 
 func (g *Group) loadLocally(key string) (my_cache2.BytesValue, error) {

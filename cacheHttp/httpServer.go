@@ -1,4 +1,4 @@
-package http
+package cacheHttp
 
 import (
 	"fmt"
@@ -42,11 +42,12 @@ func (h *HTTPServerPool) ServeHTTP(writer http.ResponseWriter, request *http.Req
 	key := split[3]
 	group, ok := mycache.GetGroup(groupName)
 	if !ok {
-		http.Error(writer, fmt.Sprintf("%s is not find in server", groupName), http.StatusBadRequest)
+		http.Error(writer, fmt.Sprintf("%s is not find in server", groupName), http.StatusOK)
+		return
 	}
 	bytesValue, err := group.Get(key)
 	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		http.Error(writer, err.Error(), http.StatusOK)
 	}
 	writer.Write(bytesValue.ByteSlice())
 }

@@ -1,9 +1,11 @@
-package http
+package cacheHttp
 
 import (
 	"fmt"
 	"io"
+	"log"
 	"my-cache2/consistent"
+	"my-cache2/mycache"
 	"my-cache2/nodes"
 	"net/http"
 	"sync"
@@ -66,4 +68,23 @@ func (h *httpGetter) Get(group string, key string) ([]byte, error) {
 		return nil, err
 	}
 	return byteValue, nil
+}
+
+func StartApiClient(group *mycache.Group, addr string) error {
+	if group == nil || addr == "" {
+		return fmt.Errorf("group and addr musth not nil")
+	}
+	http.Handle("/api", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		key := request.URL.Query().Get("key")
+		value, err := group.Get(key)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writer.Write(value.ByteSlice())
+		return
+	}))
+	log.Println("fontend server is running at", addr)
+	err := http.ListenAndServe(addr, nil)
+	return err
 }

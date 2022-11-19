@@ -3,7 +3,7 @@ package test
 import (
 	"errors"
 	"log"
-	http2 "my-cache2/http"
+	http2 "my-cache2/cacheHttp"
 	"my-cache2/mycache"
 	"net/http"
 	"testing"
