@@ -60,7 +60,7 @@ func (h *httpGetter) Get(group string, key string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.Status != "200 ok" {
+	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("Wrong return status code:" + resp.Status)
 	}
 	byteValue, err := io.ReadAll(resp.Body)

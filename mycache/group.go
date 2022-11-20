@@ -79,6 +79,7 @@ func (g *Group) Get(key string) (my_cache2.BytesValue, error) {
 func (g *Group) Load(key string) (value my_cache2.BytesValue, err error) {
 	if g.nodePicker != nil {
 		if node, ok := g.nodePicker.PickNode(key); ok {
+			log.Println("pick node ", node)
 			if value, err = g.getFromPeer(node, key); err == nil {
 				return value, nil
 			}
@@ -89,10 +90,10 @@ func (g *Group) Load(key string) (value my_cache2.BytesValue, err error) {
 }
 
 func (g *Group) getFromPeer(node nodes.NodeGetter, key string) (bytesValue my_cache2.BytesValue, err error) {
-	if bytes, err := node.Get(g.name, key); err != nil {
-		return my_cache2.BytesValue{Bytes: bytes}, nil
+	if bytesValue.Bytes, err = node.Get(g.name, key); err == nil {
+		return bytesValue, nil
 	}
-	return bytesValue, nil
+	return bytesValue, err
 }
 
 func (g *Group) loadLocally(key string) (my_cache2.BytesValue, error) {

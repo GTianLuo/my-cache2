@@ -17,7 +17,7 @@ func createGGroup() *mycache.Group {
 		}
 		return mycache.RntValue{
 			Bytes:  []byte(s),
-			Expire: 2,
+			Expire: -1,
 		}, nil
 	}))
 }
